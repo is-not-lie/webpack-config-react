@@ -16,6 +16,7 @@ import type {
 } from 'webpack-dev-server'
 
 export * from './middleware'
+export { default as EntryAssetsWebpackPlugin } from './plugin'
 
 export default (
   config: WebpackConfig,
@@ -23,7 +24,7 @@ export default (
 ): Configuration => {
   const { entry, output, typescript, alias, devServer } = config
   const { __DEV__, __PROD__ } = getEnv()
-  const outputPath = output || resolve('dist')
+  const outputPath = output?.path || resolve('dist')
   const extensions: string[] = ['.js', '.jsx', '.json']
 
   const plugins: WebpackPluginInstance[] = [
@@ -79,7 +80,8 @@ export default (
       path: outputPath,
       publicPath: __PROD__ ? '/' : './',
       filename: __PROD__ ? '[name].[contenthash:10].js' : '[name].js',
-      chunkFilename: __PROD__ ? '[name].[contenthash:10].chunk.js' : '[name].chunk.js'
+      chunkFilename: __PROD__ ? '[name].[contenthash:10].chunk.js' : '[name].chunk.js',
+      ...output
     },
     module: {
       rules: [{
@@ -126,7 +128,15 @@ export default (
     plugins,
     resolve: {
       extensions,
-      alias
+      alias,
+      fallback: {
+        crypto: require.resolve('crypto-browserify'),
+        url: require.resolve('url'),
+        buffer: require.resolve('buffer'),
+        stream: require.resolve("stream-browserify"),
+        fs: false,
+        path: require.resolve('path-browserify')
+      }
     },
     optimization: {
       minimize: __PROD__,
@@ -156,7 +166,13 @@ export default (
 export interface WebpackConfig {
   entry: Entry
   typescript?: boolean
-  output?: string
+  output?: {
+    path?: string
+    publicPath?: string
+    filename?: string
+    chunkFilename?: string
+    [key: string]: any
+  }
   alias?: ResolveOptions['alias']
   devServer?: DevServerConfiguration
 }

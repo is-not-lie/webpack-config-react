@@ -7,6 +7,7 @@ import type { MiddlewareOptions as hotMiddlewareOptions } from 'webpack-hot-midd
 
 export const koaWebpackHotMiddleware = (compiler: Compiler, options: hotMiddlewareOptions = {}) => {
   const middleware = hotMiddleware(compiler, options)
+
   const koaMiddleware = async (ctx: Context, next: Next) => {
     const { req, res } = ctx
     const { end: originalEnd } = res
@@ -29,24 +30,25 @@ export const koaWebpackDevMiddleware = (compiler: Compiler, options: devMiddlewa
   const expressMiddleware = devMiddleware(compiler, options)
 
   const koaMiddleware = async (ctx: Context, next: Next) => {
-    const { req } = ctx
+    const { req, res } = ctx
     const locals = ctx.locals || ctx.state
 
-    ctx.webpack = expressMiddleware
     const runNext = await new Promise((resolve) => {
       expressMiddleware(
         req,
         {
+          ...res,
           locals,
-          send(body: unknown) {
+          end(body: unknown) {
             ctx.body = body
             resolve(0)
           },
-          set(field: string, value: string | string[]) {
-            ctx.response.set(field, value)
+          setHeader(field: string, value: string | string[]) {
+            ctx.set(field, value)
+            return this
           },
-          get(field: string) {
-            return ctx.response.get(field)
+          getHeader(field: string) {
+            return ctx.get(field)
           }
         } as any,
         () => {
