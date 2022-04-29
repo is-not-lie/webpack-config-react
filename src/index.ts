@@ -104,6 +104,10 @@ export default (
             })
           },
           {
+            test: /\.html$/,
+            loader: 'html-loader'
+          },
+          {
             test: /\.(jpe?g|png|gif|svg)$/,
             type: 'asset',
             generator: {

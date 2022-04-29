@@ -7,7 +7,7 @@ import HtmlWebpackPlugin from 'html-webpack-plugin';
 import type { Compiler } from 'webpack'
 import type { Options as HtmlWebpackPluginOptions } from 'html-webpack-plugin'
 
-class EntryAssetsWebpackPlugin extends HtmlWebpackPlugin {
+class EntryAssetsWebpackPlugin {
   $options: Options
   name = 'EntryAssetsWebpackPlugin'
   filename: string
@@ -17,14 +17,16 @@ class EntryAssetsWebpackPlugin extends HtmlWebpackPlugin {
     js: [],
     css: []
   }
+  htmlWebpackPlugin: HtmlWebpackPlugin
+
   constructor(options: Options = {}) {
-    super(options);
+    this.htmlWebpackPlugin = new HtmlWebpackPlugin(options)
     this.$options = options;
     this.filename = options.filename || 'entryAssets.json';
   }
 
   apply(compiler: Compiler) {
-    super.apply(compiler);
+    this.htmlWebpackPlugin.apply(compiler);
 
     compiler.hooks.initialize.tap(this.name, () => {
       const { filename } = this
