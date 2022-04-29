@@ -151,14 +151,15 @@ export default (
           terserOptions: {
             compress: {
               drop_console: true,
-              drop_debugger: true,
               ecma: 5
             }
           }
         })
       ],
       splitChunks: {
-        chunks: 'all'
+        chunks: 'all',
+        maxSize: 1000000,
+        minSize: 500000,
       }
     },
     ...(devServer && { devServer })
