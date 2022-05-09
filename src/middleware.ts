@@ -60,11 +60,9 @@ export const koaWebpackDevMiddleware = (compiler: Compiler, options: devMiddlewa
     if (runNext) await next()
   }
 
-  Object.keys(expressMiddleware).forEach(
-    (key) => {
-      Object.assign(koaMiddleware, {[key]: expressMiddleware[key as keyof typeof expressMiddleware]})
-    }
-  )
+  Object.keys(expressMiddleware).forEach((key) => {
+    Object.assign(koaMiddleware, { [key]: expressMiddleware[key as keyof typeof expressMiddleware] })
+  })
 
   return koaMiddleware
 }
